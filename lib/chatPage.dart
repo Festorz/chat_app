@@ -294,63 +294,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                           },
                         ),
             ),
-            TextFormField(
-              controller: _messageController,
-              onChanged: (value) {
-                setState(() {
-                  message = value;
-                });
-              },
-              style: TextStyle(color: white.withOpacity(0.8), fontSize: 14),
-              minLines: 1,
-              maxLines: 4,
-              cursorColor: white.withOpacity(0.6),
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: Ink(
-                    padding: getPadding(all: 5),
-                    decoration: BoxDecoration(
-                        color:
-                            message.isNotEmpty ? pink : white.withOpacity(0.4),
-                        shape: BoxShape.circle),
-                    child: Icon(Icons.arrow_upward,
-                        size: getFontSize(20),
-                        color: message.isNotEmpty
-                            ? black
-                            : black.withOpacity(0.6)),
-                  ),
-                  onPressed: () {
-                    // closeKeyboard(context);
-                    if (_messageController.text.isNotEmpty) {
-                      openChannel?.sendUserMessage(
-                        UserMessageCreateParams(
-                          message: _messageController.value.text,
-                        ),
-                        handler:
-                            (UserMessage message, SendbirdException? e) async {
-                          if (e != null) {
-                            await _showDialogToResendUserMessage(message);
-                          } else {
-                            _addMessage(message);
-                          }
-                        },
-                      );
-                      _messageController.clear();
-
-                      setState(() {
-                        message = '';
-                      });
-                      // FocusScope.of(context).unfocus();
-                      // Future.delayed(
-                      //   const Duration(milliseconds: 500),
-                      //   () => _scroll(messageList.length - 1),
-                      // );
-                    }
-                  },
-                ),
-                fillColor: white.withOpacity(0.6),
-                prefixIcon: IconButton(
+            Row(
+              children: [
+                IconButton(
                   icon: Ink(
                     padding: getPadding(all: 5),
                     decoration: BoxDecoration(
@@ -358,51 +304,84 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     child: Icon(Icons.add,
                         size: getFontSize(20), color: white.withOpacity(0.6)),
                   ),
-                  onPressed: () {
-                    // closeKeyboard(context);
-                    if (_messageController.text.isNotEmpty) {
-                      openChannel?.sendUserMessage(
-                        UserMessageCreateParams(
-                          message: _messageController.value.text,
-                        ),
-                        handler:
-                            (UserMessage message, SendbirdException? e) async {
-                          if (e != null) {
-                            await _showDialogToResendUserMessage(message);
-                          } else {
-                            _addMessage(message);
-                          }
-                        },
-                      );
-                      _messageController.clear();
-
-                      setState(() {
-                        message = '';
-                      });
-                      // FocusScope.of(context).unfocus();
-                      // Future.delayed(
-                      //   const Duration(milliseconds: 500),
-                      //   () => _scroll(messageList.length - 1),
-                      // );
-                    }
+                  onPressed: () {},
+                ),
+                const SizedBox(width: 5),
+                TextFormField(
+                  controller: _messageController,
+                  onChanged: (value) {
+                    setState(() {
+                      message = value;
+                    });
                   },
+                  style: TextStyle(color: white.withOpacity(0.8), fontSize: 14),
+                  minLines: 1,
+                  maxLines: 4,
+                  cursorColor: white.withOpacity(0.6),
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      icon: Ink(
+                        padding: getPadding(all: 5),
+                        decoration: BoxDecoration(
+                            color: message.isNotEmpty
+                                ? pink
+                                : white.withOpacity(0.4),
+                            shape: BoxShape.circle),
+                        child: Icon(Icons.arrow_upward,
+                            size: getFontSize(20),
+                            color: message.isNotEmpty
+                                ? black
+                                : black.withOpacity(0.6)),
+                      ),
+                      onPressed: () {
+                        // closeKeyboard(context);
+                        if (_messageController.text.isNotEmpty) {
+                          openChannel?.sendUserMessage(
+                            UserMessageCreateParams(
+                              message: _messageController.value.text,
+                            ),
+                            handler: (UserMessage message,
+                                SendbirdException? e) async {
+                              if (e != null) {
+                                await _showDialogToResendUserMessage(message);
+                              } else {
+                                _addMessage(message);
+                              }
+                            },
+                          );
+                          _messageController.clear();
+
+                          setState(() {
+                            message = '';
+                          });
+                          // FocusScope.of(context).unfocus();
+                          // Future.delayed(
+                          //   const Duration(milliseconds: 500),
+                          //   () => _scroll(messageList.length - 1),
+                          // );
+                        }
+                      },
+                    ),
+                    fillColor: white.withOpacity(0.6),
+                    hintText: "Type a message.",
+                    hintStyle: TextStyle(color: white.withOpacity(0.5)),
+                    contentPadding: const EdgeInsets.all(3),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide:
+                          BorderSide(color: white.withOpacity(0.5), width: 1.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(
+                            color: white.withOpacity(0.2), width: 1.0)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                 ),
-                hintText: "Type a message.",
-                hintStyle: TextStyle(color: white.withOpacity(0.5)),
-                contentPadding: const EdgeInsets.all(3),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide:
-                      BorderSide(color: white.withOpacity(0.5), width: 1.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide:
-                        BorderSide(color: white.withOpacity(0.2), width: 1.0)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              ],
             ),
           ],
         ),
