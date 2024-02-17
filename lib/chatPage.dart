@@ -237,12 +237,18 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                                     mainAxisSize:
                                                         MainAxisSize.min,
                                                     children: [
-                                                      AppText(
-                                                        text: message
-                                                            .sender!.userId,
-                                                        size: 12,
-                                                        color: white
-                                                            .withOpacity(0.6),
+                                                      ConstrainedBox(
+                                                        constraints:
+                                                            BoxConstraints(
+                                                                maxWidth:
+                                                                    w * 0.5),
+                                                        child: AppText(
+                                                          text: message
+                                                              .sender!.userId,
+                                                          size: 12,
+                                                          color: white
+                                                              .withOpacity(0.6),
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                           width:
@@ -344,6 +350,43 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   },
                 ),
                 fillColor: white.withOpacity(0.6),
+                prefixIcon: IconButton(
+                  icon: Ink(
+                    padding: getPadding(all: 5),
+                    decoration: BoxDecoration(
+                        color: white.withOpacity(0.2), shape: BoxShape.circle),
+                    child: Icon(Icons.add,
+                        size: getFontSize(20), color: white.withOpacity(0.6)),
+                  ),
+                  onPressed: () {
+                    // closeKeyboard(context);
+                    if (_messageController.text.isNotEmpty) {
+                      openChannel?.sendUserMessage(
+                        UserMessageCreateParams(
+                          message: _messageController.value.text,
+                        ),
+                        handler:
+                            (UserMessage message, SendbirdException? e) async {
+                          if (e != null) {
+                            await _showDialogToResendUserMessage(message);
+                          } else {
+                            _addMessage(message);
+                          }
+                        },
+                      );
+                      _messageController.clear();
+
+                      setState(() {
+                        message = '';
+                      });
+                      // FocusScope.of(context).unfocus();
+                      // Future.delayed(
+                      //   const Duration(milliseconds: 500),
+                      //   () => _scroll(messageList.length - 1),
+                      // );
+                    }
+                  },
+                ),
                 hintText: "Type a message.",
                 hintStyle: TextStyle(color: white.withOpacity(0.5)),
                 contentPadding: const EdgeInsets.all(3),
@@ -450,24 +493,27 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     });
   }
 
-  void _scroll(int index) async {
-    if (messageList.length <= 1) return;
+  void _scroll(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (messageList.length <= 1) return;
 
-    while (!itemScrollController.isAttached) {
-      await Future.delayed(const Duration(milliseconds: 1));
-    }
+      while (!itemScrollController.isAttached) {
+        await Future.delayed(const Duration(milliseconds: 1));
+      }
 
-    itemScrollController.scrollTo(
-      index: index,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.fastOutSlowIn,
-    );
+      itemScrollController.scrollTo(
+        index: index,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
   }
 }
 
 void _handleSelect(BuildContext context, channelUrl) async {
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   sharedPreferences.clear();
+  OpenChannel.getChannel(channelUrl).then((channel) => channel.exit());
 
   Phoenix.rebirth(context);
 }
